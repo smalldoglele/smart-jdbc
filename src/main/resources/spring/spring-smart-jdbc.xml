@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+	<context:component-scan base-package="org.smart.jdbc" />
+	<!-- properties文件读取 -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" p:locations="classpath*:config/*.properties" />
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driver-class}" />
+		<property name="jdbcUrl" value="${jdbc.jdbc-url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="minPoolSize" value="${c3p0.min-pool-size}" />
+		<property name="maxPoolSize" value="${c3p0.max-pool-size}" />
+		<property name="initialPoolSize" value="${c3p0.initial-pool-size}" />
+		<property name="maxIdleTime" value="${c3p0.max-idle-time}" />
+		<property name="acquireIncrement" value="${c3p0.acquire-increment}" />
+		<property name="maxStatements" value="${c3p0.max-statements}" />
+		<property name="idleConnectionTestPeriod" value="${c3p0.idle-connection-test-period}" />
+		<property name="acquireRetryAttempts" value="${c3p0.acquire-retry-attempts}" />
+		<property name="breakAfterAcquireFailure" value="${c3p0.break-after-acquire-failure}" />
+		<property name="testConnectionOnCheckout" value="${c3p0.test-connection-on-checkout}" />
+	</bean>
+	<!-- JdbcTemplate -->
+	<bean id="jdbcTemplate" class="org.smart.jdbc.SmartJdbcTemplate">
+		<constructor-arg ref="dataSource" />
+		<property name="dialect" value="${jdbc.dialect}"></property>
+	</bean>
+	<!-- 事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		p:dataSource-ref="dataSource" />
+	<!-- 这是事务通知操作，使用的事务管理器引用自 transactionManager -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+</beans>
